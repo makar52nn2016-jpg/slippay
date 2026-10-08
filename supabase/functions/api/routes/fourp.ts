@@ -125,15 +125,28 @@ r.post("/quote", async (c) => {
     // rev-share — on a direct-to-user on-ramp the Pix lands at 4P, not Slippay.
     const bps = Number(Deno.env.get("FOURP_MARGIN_BPS"));
     const marginBps = Number.isFinite(bps) && bps >= 0 && bps <= 1000 ? bps : 280;
+    // Compute the net in integer basis points, rounded DOWN to USDC's 6-decimal
+    // unit (1 "stroop" = 1e-6 USDC). Rounding direction is in the platform's
+    // disfavour: the user never receives less than what the UI shows, and the
+    // displayed dollar rate * the received crypto always reconciles back to the
+    // original BRL amount exactly (no toFixed(8) truncation, no float drift).
+    // See docs/integrations/fourp-ramp.md for the full derivation.
+    const USDC_UNIT = 1e6; // 1 USDC = 1e6 units; smallest indivisible unit
+    const BPS_SCALE = 10_000; // 1 basis point = 1/100 of a percent
     // Capture the gross (4P) price per asset before applying our margin, so the
     // client can show the user the exact dollar rate AND the fee transparently.
     const map = q.quote ?? {};
     const gross: Record<string, number> = {};
     for (const k of Object.keys(map)) {
       gross[k] = map[k].price;
+      // net = floor(gross * (1 - marginBps / SCALE)) at USDC precision
+      //   = floor(scaledGross * (SCALE - marginBps) / SCALE) / UNIT
+      const scaledGross = Math.round(gross[k] * USDC_UNIT); // integer USDC units
+      const netScaled = Math.floor((scaledGross * (BPS_SCALE - marginBps)) / BPS_SCALE);
+      const net = netScaled / USDC_UNIT;
       map[k] = {
         ...map[k],
-        price: Number((gross[k] * (1 - marginBps / 10_000)).toFixed(8)),
+        price: net,
       };
     }
     return c.json({ quote: q, gross, marginBps });
@@ -233,8 +246,10 @@ r.post("/offramp/quote", async (c) => {
     const marginBps = Number.isFinite(bps) && bps >= 0 && bps <= 1000 ? bps : 280;
     const entry = q.quote ? Object.values(q.quote)[0] : undefined;
     const brlGross = entry?.price;
+    // BRL has 2 decimal places (1 cent). Round DOWN to 1 cent (platform disfavour).
+    // Same integer bps math as the on-ramp path.
     const brlOut = typeof brlGross === "number"
-      ? Number((brlGross * (1 - marginBps / 10_000)).toFixed(2))
+      ? Math.floor((brlGross * (10_000 - marginBps)) / 10_000 * 100) / 100
       : null;
     return c.json({ brlOut, receiver: Deno.env.get("FOURP_OFFRAMP_RECEIVER")?.trim() || null, asset: cl.asset, marginBps });
   } catch (e) {
