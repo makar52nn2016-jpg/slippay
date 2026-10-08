@@ -58,8 +58,8 @@ earns yield on idle dollars). Every money path is protected by the same
 |---|---|
 | [Design spec](./superpowers/specs) | Corporate treasury phase-1 design: Privy non-custodial wallet, câmbio, yield. |
 | [Go-live checklist](./comex-go-live-checklist.md) | Exact env vars + ordered steps to flip it live when the keys land. |
-| [4P Solana ramp](./4P_SOLANA_RAMP.md) | The licensed R$↔USD partner integration (Solana). |
-| [Solana frontend port](./SOLANA_FRONTEND_PORT.md) | The `ChainAdapter` and the Stellar→Solana migration. |
+| [4P Solana ramp](./4P_SOLANA_RAMP.md) | The licensed R$↔USD partner integration (Solana). **Reference only — Solana is not active in production; see `comex-go-live-checklist.md`.** |
+| [Solana frontend port](./SOLANA_FRONTEND_PORT.md) | The `ChainAdapter` and the Stellar→Solana **reference** adapter — gated behind `VITE_CHAIN=solana`, not active in production. |
 
 ## Packages
 
