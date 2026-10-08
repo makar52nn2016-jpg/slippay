@@ -1,6 +1,13 @@
 // Active chain adapter, chosen by VITE_CHAIN (default "stellar"). Pages import
 // `getChainAdapter()` and never touch a chain SDK. Stellar stays the default so
-// the live product is unchanged until Solana is proven and cutover is flipped.
+// the live product is unchanged.
+//
+// Solana status: REFERENCE ONLY — not active in production.
+// The Solana adapter exists in `feat/solana-adapter` as a reference
+// implementation; production never sets VITE_CHAIN=solana. Cutover stays
+// gated until the Solana biometric wallet (step 4 in SOLANA_FRONTEND_PORT.md)
+// proves out on devnet + devnet funding + a Solana ramp is live.
+// See docs/comex-go-live-checklist.md for the canonical status statement.
 //
 // The Solana adapter is dynamically imported so its heavy deps (@solana/web3.js,
 // @coral-xyz/anchor) are code-split out of the Stellar bundle and only loaded
