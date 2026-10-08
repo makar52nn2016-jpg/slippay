@@ -62,10 +62,7 @@ Deno.test("4P on-ramp: net rounds DOWN to USDC's 6-decimal precision (no float d
 // ---- off-ramp: BRL rounded DOWN to 1 cent -------------------------------------
 
 Deno.test("4P off-ramp: brlOut is floor(gross * (1 - marginBps/SCALE)) at 1-cent precision", () => {
-  assertEquals(brlOutOfframp(534.6, 280), 519.59);  // 534.6 * 0.972 = 519.6312 -> floor to 519.63? check
-  // 534.6 * 9720 / 10000 = 519.6312
-  // * 100 = 51963.12 -> floor = 51963 -> /100 = 519.63
-  // Wait, the test should be 519.63 not 519.59
+  assertEquals(brlOutOfframp(534.6, 280), 519.63);  // 534.6 * 0.972 = 519.6312 -> floor at 1 cent = 519.63
 });
 
 Deno.test("4P off-ramp: brlOut never exceeds float-derived value (round DOWN)", () => {
