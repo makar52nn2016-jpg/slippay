@@ -63,7 +63,7 @@ export interface Quote4p {
   grossOut: number | null;    // USDC at the raw 4P rate, before Slippay margin
   marginBps: number | null;   // Slippay fee in basis points (e.g. 280 = 2.8%)
   asset: string | null;
-  dollarRate: number | null;  // exact gross rate: R$ per 1 USD (brl / grossOut)
+  dollarRate: number | null;  // exact NET rate: R$ per 1 USD received (brl / cryptoOut)
 }
 
 export async function quote4p(brl: number): Promise<Quote4p> {
@@ -76,7 +76,11 @@ export async function quote4p(brl: number): Promise<Quote4p> {
   const asset = Object.keys(map)[0] ?? null;
   const net = asset ? map[asset]?.price ?? null : null;
   const grossOut = asset && gross ? gross[asset] ?? null : null;
-  const dollarRate = grossOut && grossOut > 0 ? brl / grossOut : null;
+  // dollarRate = brl / net (the post-margin figure the user actually
+  // receives) so the displayed rate * the received amount reconciles back to
+  // the original BRL input exactly. Previously: brl / grossOut — that exposed
+  // the margin as a mismatch between the displayed rate and the received amount.
+  const dollarRate = net && net > 0 ? brl / net : null;
   return { cryptoOut: net, grossOut, marginBps: marginBps ?? null, asset, dollarRate };
 }
 
