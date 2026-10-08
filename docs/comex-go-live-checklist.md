@@ -18,6 +18,8 @@ nativo da Circle na Base).
 - [ ] Login methods: **apenas e-mail** (sem biometria/passkey)
 - [ ] **MFA habilitado** (TOTP)
 - [ ] **Embedded wallets: Ethereum/EVM, createOnLogin** (sem Solana)
+
+> **Status do Solana — referência, não roadmap.** A versão Solana do adapter de chain (`apps/web/src/lib/chain/solana/`) e os docs `SOLANA_FRONTEND_PORT.md` / `SOLANA_MIGRATION.md` existem no repo **apenas como referência técnica**. Eles NÃO estão ativos em produção: `/comex` aponta para Base (EVM) com Privy EVM wallet. O adapter Solana só carrega se `VITE_CHAIN=solana` for explicitamente configurado, o que a produção nunca faz. Não há data de cutover — Solana está congelado em `feat/solana-adapter` até o passo 4 (biometria Solana) provar em devnet + haver funding de devnet + ramp Solana ativa. Ver [`SOLANA_FRONTEND_PORT.md`](./SOLANA_FRONTEND_PORT.md) § "Cutover stays gated until 4 proves out + devnet funding + ramp". Ver também [`SOLANA_MIGRATION.md`](./SOLANA_MIGRATION.md) § "Migração em paralelo: a Stellar fica viva até a Solana funcionar".
 - [ ] Default chain / allowed chains: **Base** (chain id 8453)
 - [ ] Allowed domains: `app.slippay.cc`
 - [ ] Copiar o **App ID**
@@ -77,5 +79,4 @@ mas precisa do endpoint real da 4P:
 Portado pra **Base** (a 4P liquida em Base). Pronto e testado (tsc 0, **74 testes**, build 0),
 gated, não-deployado o transacional: Privy EVM wallet + gate WYSIWYS (viem) + saldo/receber
 + enviar + comprar (4P, Base). Sem contrato a deployar. **Falta só o Privy App ID** (4P já
-em prod). Venda/off-ramp e yield = fase 2. A versão Solana ficou no repo como referência
-(não usada; `/comex` aponta pra Base).
+em prod). Venda/off-ramp e yield = fase 2. **Solana = referência, não roadmap** — ver a declaração de status no topo deste checklist. O adapter Solana existe em `feat/solana-adapter` mas `/comex` aponta pra Base.
