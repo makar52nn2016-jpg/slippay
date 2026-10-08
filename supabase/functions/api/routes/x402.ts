@@ -52,7 +52,18 @@ const MAX_PENDING_PER_RESOURCE = (() => {
 type Vars = { merchant: { id: string; [k: string]: unknown }; supabase: SupabaseClient };
 const r = new Hono<{ Variables: Vars }>();
 
-const STELLAR_NETWORK = (Deno.env.get("STELLAR_NETWORK") ?? "testnet") as "testnet" | "mainnet";
+// Fail closed in production: NEVER silently default to "testnet" — a missing
+// STELLAR_NETWORK in production would advertise testnet asset/Horizon details
+// in 402 bodies, leaking the wrong network to the buyer. (See #54.)
+const NODE_ENV = Deno.env.get("NODE_ENV");
+const STELLAR_NETWORK = (() => {
+  const v = Deno.env.get("STELLAR_NETWORK");
+  if (v) return v;
+  if (NODE_ENV === "production") {
+    throw new Error("STELLAR_NETWORK must be set in production (NODE_ENV=production).");
+  }
+  return "testnet"; // dev/test default
+})() as "testnet" | "mainnet";
 
 const RegisterResourceSchema = z.object({
   slug: z.string().min(1).max(120).regex(/^[a-z0-9][a-z0-9-_]{0,119}$/),
